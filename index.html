@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>World staple crop yields</title>
+  
+  <style>
+    h2 {
+      text-align: left;
+    }
+    p
+    {
+      width:600px; 
+      word-wrap:break-word;
+    }
+    form {
+      position: absolute;
+      top: 80px;
+      left: 60px;
+    }
+  </style>
+</head>
+
+<body>
+  
+  <h2>World staple crop yields</h2>
+  
+  <!-- Radio buttons to select which crop type to graph -->
+  <form>
+    <input type="radio" name="crop" id="Wheat">
+    <label for="ref-wheat">Wheat</label>
+    <input type="radio" name="crop" id="Rice" checked>
+    <label for="ref-rice">Rice</label><br>
+    <input type="radio" name="crop" id="Maize">
+    <label for="ref-maize">Maize</label>
+    <input type="radio" name="crop" id="Potatoes">
+    <label for="ref-potatoes">Potatoes</label>
+  </form>
+
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+  <script src="http://dimplejs.org/dist/dimple.v2.0.0.min.js"></script>
+   
+  <div id="chartContainer">  
+    <script type="text/javascript">
+  
+      function draw(data) {
+        
+        var margin = 75,
+            width = 600,
+            height = 500;        
+        
+        var svg = dimple.newSvg("#chartContainer", width, height);
+          
+            // Create the chart
+            var myChart = new dimple.chart(svg, data);
+            myChart.setMargins(margin,margin+30,margin+50,margin)
+            
+            // Setting axes
+            var x = myChart.addTimeAxis("x", "Year"); 
+            var y1 = myChart.addMeasureAxis("y", "Rice");
+            x.dateParseFormat = "%Y";
+            x.tickFormat = "%Y";
+            x.timeInterval = 4;
+            y1.title = "Crop yield (tonnes/hectare)";
+       
+            
+            // Adding 4 series, corresponding to 4 development indices (low, med, high, very high)
+            var s1 = myChart.addSeries(["DI"], dimple.plot.line);
+            
+            // Adding legend
+            var myLegend = myChart.addLegend(510, 140, 50, 300, "Left");
+            
+            myChart.draw();
+          
+            // This is a critical step.  By doing this we orphan the legend. This
+            // means it will not respond to graph updates.  Without this the legend
+            // will redraw when the chart refreshes removing the unchecked item and
+            // also dropping the events we define below.
+            myChart.legends = [];  
+
+            // This block simply adds the legend title. I put it into a d3 data
+            // object to split it onto 2 lines.  This technique works with any
+            // number of lines, it isn't dimple specific.
+            svg.selectAll("svg")
+              .data(["Human development","index.","Click to show/hide."])
+              .enter()
+              .append("text")
+                .attr("x", 480)
+                .attr("y", function (d, i) { return 116 + i * 14; })
+                .style("font-family", "sans-serif")
+                .style("font-size", "11px")
+                .style("color", "Black")
+                .text(function (d) { return d; });          
+            
+            
+            // Get a unique list of development indicator values to use when filtering
+            var filterValues = dimple.getUniqueValues(data, "DI");
+            // Get all the rectangles from our now orphaned legend
+            myLegend.shapes.selectAll("rect")
+              // Add a click event to each rectangle
+              .on("click", function (e) {
+                // This indicates whether the item is already visible or not
+                var hide = false;
+                var newFilters = [];
+                // If the filters contain the clicked shape hide it
+                filterValues.forEach(function (f) {
+                  if (f === e.aggField.slice(-1)[0]) {
+                    hide = true;
+                  } else {
+                    newFilters.push(f);
+                  }
+                });
+                // Hide the shape or show it
+                if (hide) {
+                  d3.select(this).style("opacity", 0.2);
+                } else {
+                  newFilters.push(e.aggField.slice(-1)[0]);
+                  d3.select(this).style("opacity", 0.8);
+                }
+                // Update the filters
+                filterValues = newFilters;
+                // Filter the data based on development indicator
+                myChart.data = dimple.filterData(data, "DI", filterValues);
+                // Passing a duration parameter makes the chart animate. 
+                myChart.draw(800);});
+                
+                
+                d3.selectAll("input").on("click", updateChart);
+                function updateChart(){
+                    var what = this.id;
+                    // Access the Y axis via the series
+                    y1.measure = what;
+                    
+                    // Redraw the chart with a 1 second transition
+                    myChart.draw(1000);
+                };
+      };
+
+  /*
+    Use D3 (not dimple.js) to load the TSV file
+    and pass the contents of it to the draw function
+    */
+    d3.csv("data/yield_processed.csv", draw);
+  
+    //d3.csv("yield_processed.csv", draw);
+  </script>
+</div>
+<div>
+    <p> This chart shows how agricultural staple crop yields have improved over time. The data is grouped and averaged over all countries belonging to each of the human development indices (low, medium, high, very high). The yields are measured as tonnes per land area, per year. Highly developed countries have tended to have higher yields, however the rate of yield increase is slowing. In contrast, countries having medium to high development indices are increasing the rate of yield improvement since the mid-1980s. Countries with low development are recently starting to increase the rate of yield improvement. 
+    </p>
+    <p> Agricultural data was obtained from the Food Agricultural Organization of the UN site: <a href="http://faostat3.fao.org/home/E">http://faostat3.fao.org/home/E</a>
+    </p>
+    <p> Human development indicators per country were obtained from <a href="http://hdr.undp.org/en/countries">http://hdr.undp.org/en/countries</a></p>
+
+</div>
+</body>
+</html>
