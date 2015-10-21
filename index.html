@@ -136,9 +136,22 @@
                     // Redraw the chart with a 1 second transition
                     myChart.draw(1000);
                 };
+<<<<<<< HEAD
       });
     </script>
     </div>
+=======
+      };
+
+  /*
+    Use D3 (not dimple.js) to load the TSV file
+    and pass the contents of it to the draw function
+    */
+    d3.csv("Data/yield_processed.csv", draw);
+
+  </script>
+</div>
+>>>>>>> parent of 0883194... Put draw function inside separate script structure
 <div>
     <p> This chart shows how agricultural staple crop yields have improved over time. The data is grouped and averaged over all countries belonging to each of the human development indices (low, medium, high, very high). The yields are measured as tonnes per land area, per year. Highly developed countries have tended to have higher yields, however the rate of yield increase is slowing. In contrast, countries having medium to high development indices are increasing the rate of yield improvement since the mid-1980s. Countries with low development are recently starting to increase the rate of yield improvement. 
     </p>
