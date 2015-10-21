@@ -51,7 +51,7 @@
             height = 500;        
         
         var svg = dimple.newSvg("#chartContainer", width, height);
-          
+            debugger;
             // Create the chart
             var myChart = new dimple.chart(svg, data);
             myChart.setMargins(margin,margin+30,margin+50,margin)
@@ -63,7 +63,7 @@
             x.tickFormat = "%Y";
             x.timeInterval = 4;
             y1.title = "Crop yield (tonnes/hectare)";
-       
+            
             
             // Adding 4 series, corresponding to 4 development indices (low, med, high, very high)
             var s1 = myChart.addSeries(["DI"], dimple.plot.line);
@@ -72,7 +72,8 @@
             var myLegend = myChart.addLegend(510, 140, 50, 300, "Left");
             
             myChart.draw();
-          
+            
+            debugger;
             // This is a critical step.  By doing this we orphan the legend. This
             // means it will not respond to graph updates.  Without this the legend
             // will redraw when the chart refreshes removing the unchecked item and
@@ -131,7 +132,7 @@
                     var what = this.id;
                     // Access the Y axis via the series
                     y1.measure = what;
-                    
+                    debugger;
                     // Redraw the chart with a 1 second transition
                     myChart.draw(1000);
                 };
